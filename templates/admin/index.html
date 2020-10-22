@@ -1,0 +1,130 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+  <div class="jumbotron">
+    <div class="container">
+      <h1>Real-time Monitoring Display</h1>
+      <p>Sensor readings and scan results stored in a SQLite database</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <h2>Scan result: <span id='scan_result' class="label"></span></h2>
+        <h3>Last scan time: <span id='scan_time' class="label"></span></h3>
+        <p>negative: no crack</p>
+        <p>positive: crack</p>
+        <img id='scan_image' src='/static/scan_image/out_lab_crack1.png'
+              alt='scan image' width='500' height='380'>
+      </div>
+      {% for sensor in config.DATABASE.get_sensors() %}
+        <div class="col-md-6">
+          <h2>{{ sensor.name }}</h2>
+          <h4>Load monitoring</h4>
+          <form>
+            <input type='radio' id='daily_avg' name ='plot' value='get_daily_average'>
+            <label for='daily_avg'>daily average</label>
+            <input type='radio' id='critical' name ='plot' value='get_critical_readings'>
+            <label for='critical'>critical readings</label>
+            <input type='radio' id='recent' name ='plot' value='get_recent_readings'>
+            <label for='recent'>most recent</label>
+            <input type='button' value='show'>
+          </form>
+          <canvas id='chart_{{ sensor.id }}' width='530' height='430'></canvas>
+        </div>
+      {% endfor %}
+      
+    </div>
+  </div>
+{% endblock %}
+
+{% block tail %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.1.1/Chart.min.js"></script>
+  <script>
+    // Function to build a sensor chart.  Must pass in the id of the canvas
+    // which will hold the chart, then a list of labels, load values, and
+    // displacement values.
+    function buildSensorChart(id, labels, load, displacement) {
+      // Use Chart.js to build a chart with load and displacement.
+      var ctx = $(id).get(0).getContext('2d');
+      var sensorChart = new Chart(ctx).Line({
+        labels: labels,
+        options : {
+          title: {
+            display: true,
+            text: 'Load (N) vs time'
+            }
+        },
+        datasets: [
+          {
+            label: "Load (N)",
+            fillColor: "rgba(151,187,205,0.2)",
+            strokeColor: "rgba(151,187,205,1)",
+            pointColor: "rgba(151,187,205,1)",
+            pointStrokeColor: "#fff",
+            pointHighlightFill: "#fff",
+            pointHighlightStroke: "rgba(151,187,205,1)",
+            data: load
+          }
+        ]
+      });
+    }
+    
+    // Function to update the switch state on the page.
+    function updateScan(scanState, scanTime, scanImage) {
+      $('#scan_time').text(scanTime);
+      $('#scan_time').toggleClass('label-default', true);
+      $('#scan_image').attr('src', scanImage)
+      
+      if (scanState === 'False') {
+        $('#scan_result').text('negative');
+        $('#scan_result').toggleClass('label-danger', false);
+        $('#scan_result').toggleClass('label-success', true);
+      }
+      else if (scanState === 'True') {
+        $('#scan_result').text('positive');
+        $('#scan_result').toggleClass('label-danger', true);
+        $('#scan_result').toggleClass('label-success', false);
+      }
+    }
+    
+    // JQuery ready function will be called once all the assets on the page (like
+    // Chart.js) have loaded.
+    $(document).ready(function() {
+      // Loop through each sensor and call the buildSensorChart function above
+      // to generate its chart.
+      
+      {% for sensor in config.DATABASE.get_sensors() %}
+        $("input[type='button']").click(function(){
+        var plotType = $("input[name='plot']:checked").val();
+        if(plotType == 'get_critical_readings'){
+          {% set load = config.DATABASE.get_critical_readings(sensor.name + ' load') %}
+          buildSensorChart('#chart_{{ sensor.id }}',
+                      ["{{ load|reverse|join('\",\"', attribute='time')|safe }}"],
+                      [{{ load|reverse|join(',', attribute='value') }}]);
+        }
+        else if (plotType == 'get_daily_average'){
+          {% set load = config.DATABASE.get_daily_average(sensor.name + ' load') %}
+          buildSensorChart('#chart_{{ sensor.id }}',
+                      ["{{ load|reverse|join('\",\"', attribute='day')|safe }}"],
+                      [{{ load|reverse|join(',', attribute='avg') }}]);
+        }
+        else if (plotType == 'get_recent_readings'){
+          {% set load = config.DATABASE.get_recent_readings(sensor.name + ' load') %}
+          buildSensorChart('#chart_{{ sensor.id }}',
+                      ["{{ load|reverse|join('\",\"', attribute='time')|safe }}"],
+                      [{{ load|reverse|join(',', attribute='value') }}]);
+        }
+        });
+        
+        {% set scanState = config.DATABASE.get_scan_status() %}
+        {% set scanTime = config.DATABASE.get_scan_time() %}
+        {% set scanImage = config.DATABASE.get_scan_file() %}
+        
+        updateScan('{{ scanState }}', '{{ scanTime }}', '{{ scanImage }}')
+      
+      {% endfor %}
+    });
+  </script>
+{% endblock %}
