@@ -18,7 +18,6 @@ class Run():
         self.root = tk.Tk()
         self.setting = Setting(self.root)
         self.reset()        
-        self.execute_web = False
         
     def reset(self):
         self.root.mainloop()
@@ -34,10 +33,6 @@ class Run():
             self.scan_image = self.setting.filename
         self.scan_interval = self.setting.get_scan_interval()
         self.recipients = self.setting.get_recipients()
-        
-    def run_webpage(self):
-        if self.execute_web == True:
-            call('FLASK_APP=webapp.py flask run --host=0.0.0.0', shell=True)
     
     def mode_all(self):
         if self.camera == 'True':
@@ -46,7 +41,6 @@ class Run():
                     print('Program starts...')
                     monitoring = Monitoring(self.critical_load, self.sensor_interval, self.scan_interval, self.recipients)
                     monitoring.add_sensor('sensor1', 'Fibre-optic', 0) #set it as user input
-                    self.execute_web = True
                     monitoring.schedule_scan()
                 except KeyboardInterrupt:
                     print('Monitoring stops...')
@@ -62,7 +56,6 @@ class Run():
                 print('Program starts...')
                 sensor = Sensor(self.sensor_interval)
                 sensor.add_sensor('sensor1', 'Fibre-optic', 0) #set it as user input
-                self.execute_web = True
                 sensor.log_data()
             except KeyboardInterrupt:
                 print('Monitoring stops...')
