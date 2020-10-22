@@ -2,18 +2,18 @@
 
 
 # Install packages
-#PACKAGES="python-picamera python-pip python-schedule python-smbus python-numpy python-matplotlib sqlite3"
+PACKAGES="python-picamera python-pip python-schedule python-smbus python-numpy python-matplotlib sqlite3"
 
-#apt-get update
-#apt-get upgrade -y
-#apt-get install $PACKAGES -y
-#pip install https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp37-cp37m-linux_armv7l.whl
-#pip3 install peewee flask flask-admin wtf-peewee
+apt-get update
+apt-get upgrade -y
+apt-get install $PACKAGES -y
+pip install https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp37-cp37m-linux_armv7l.whl
+pip3 install peewee flask flask-admin wtf-peewee
 
 # ENABLE interface
 #for testing use /home/pi/config.txt 
 
-#CONFIG="/boot/config.txt"
+CONFIG="/boot/config.txt"
 CONFIG="/home/pi/config.txt"  
 
 if grep -Fq "start_x" $CONFIG
