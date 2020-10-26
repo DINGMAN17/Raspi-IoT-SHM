@@ -1,5 +1,5 @@
-# Raspberry Pi IoT application for strucural health monitoring
-IoT application in structural health monitoring using Raspberry Pi
+# Raspberry Pi IoT application for structural health monitoring
+IoT application that focuses on load/displacement monitoring and crack detection using Raspberry Pi, fibre optic sensor, camera module. 
 
 ## Table of contents
 * [General info](#general-info)
@@ -8,7 +8,13 @@ IoT application in structural health monitoring using Raspberry Pi
 * [Usage](#usage)
 
 ## General info
+This application aims to provide a highly automated, real-time, accurate solution to structural health monitoring.
+There are two main functions: 
+- load monitoring using fibre optic sensor; 
+- crack detectioin using pretrained deep learning CNN model and camera module. 
 
+Parameters such as sensor interval can be configured via UI. 
+The real-time monitoring and scan results will be updated on a webpage.
 	
 ## Installation
 
@@ -22,7 +28,20 @@ chmod u+x installer.sh
 ## Hardware
 There are three modes in this application which require different hardware settings.
 1. Load monitoring using fibre optic sensor
-For this mode to work, you need to have a fiber optic sensor, analog digital converter, breadboard, jumper wires.
+
+For this mode to work, you need to have a fiber optic sensor, analog digital converter, breadboard, several jumper wires, resistors. Please connect the sensor based on the breadboard diagram below:
+
+![Image of sensor connection](https://github.com/DINGMAN17/Raspi-IoT-SHM/blob/main/Breadboard%20final.JPG)
+
+2. Crack scan using pretrained CNN model
+
+This mode can be further divided into two sub-modes:
+- real-time crack detection using camera module: a Raspberry Pi camera module is required. (both v2 and HD camera module are suitable)
+- crack detection via file-upload: no hardware is required, image file can be uploaded via UI 
+
+3. Load monitoring with scheduled crack scan and emergency scan
+
+Both sensor and camera module are required. 
 
 
 ## Usage
