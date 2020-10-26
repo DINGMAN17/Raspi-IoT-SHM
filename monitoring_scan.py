@@ -12,13 +12,15 @@ from email.message import EmailMessage
 from image_classifier import CrackDectectorLite
 
 class Monitoring():
-    def __init__(self, critical_load, sensor_interval, scan_interval, recipients):
+    def __init__(self, critical_load, sensor_interval, scan_interval, recipients, sender, password):
         self.address = 0x48
         self.bus = smbus.SMBus(1)
         self.cmd = 0x40
         self.critical_load = critical_load
         self.sensor_interval = sensor_interval
         self.scan_interval = scan_interval
+        self.sender = sender
+        self.passwood = password
         self.recipients = recipients
         self.data = database.SensorData() #create a database instance
         self._lock = threading.Lock() #create a lock to syncronize access to hardware from different threads
@@ -83,9 +85,11 @@ class Monitoring():
     def send_alert(self, filename):  #user input
         '''configure email alert when crack is detected'''
         contacts = self.recipients
-        email_sender = os.environ.get('EMAIL_USER') 
-        email_password = os.environ.get('EMAIL_PASSWORD')
-
+        #email_sender = os.environ.get('EMAIL_USER') 
+        #email_password = os.environ.get('EMAIL_PASSWORD')
+        email_sender = self.sender
+        email_password = self.password
+        
         msg = EmailMessage()
         msg['Subject'] = 'Crack Alert!!!'
         msg['From'] = email_sender
