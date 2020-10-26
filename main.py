@@ -32,6 +32,8 @@ class Run():
         if self.upload_status == True:
             self.scan_image = self.setting.filename
         self.scan_interval = self.setting.get_scan_interval()
+        self.sender = self.setting.get_sender_email()
+        self.password = self.setting.get_password()
         self.recipients = self.setting.get_recipients()
     
     def mode_all(self):
@@ -39,7 +41,8 @@ class Run():
             if self.sensor_interval > 0 and self.scan_interval > 0:
                 try:
                     print('Program starts...')
-                    monitoring = Monitoring(self.critical_load, self.sensor_interval, self.scan_interval, self.recipients)
+                    monitoring = Monitoring(self.critical_load, self.sensor_interval, \
+                                            self.scan_interval, self.recipients, self.sender, self.passwrod)
                     monitoring.add_sensor('sensor1', 'Fibre-optic', 0) #set it as user input
                     monitoring.schedule_scan()
                 except KeyboardInterrupt:
