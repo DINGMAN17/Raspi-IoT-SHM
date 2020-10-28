@@ -1,6 +1,6 @@
 from image_classifier import CrackDectectorLite
+import schedule
 import picamera
-import datetime
 import time
 import database
 
@@ -29,8 +29,8 @@ class Scan():
     
     def schedule_scan(self, scan_interval):
         schedule.every(scan_interval).minutes.do(self.scan_camera)
-        return_condition = scan_camera()[0]
-        return_filename = scan_camera()[1]
+        return_condition = self.scan_camera()[0]
+        return_filename = self.scan_camera()[1]
         
         while True:
             schedule.run_pending()
