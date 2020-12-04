@@ -52,7 +52,7 @@ class CrackDectectorLite:
         pil_b = Image.fromarray(b.astype(np.uint8)).convert('RGB')
         add_img = Image.blend(pil_a, pil_b, alpha=0.2)
         draw = ImageDraw.Draw(add_img)
-        font = ImageFont.truetype('/home/pi/Part2_crack_detection/Roboto/Roboto-Regular.ttf', 30)
+        font = ImageFont.truetype('Roboto-Regular.ttf', 30)
         draw.text((70,100), predicted_class, font=font, fill=color)
         add_img.save('test_a.jpg')
         return np.array(add_img), positive_no
