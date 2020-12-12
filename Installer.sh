@@ -14,7 +14,6 @@ pip3 install peewee flask flask-admin wtf-peewee
 #for testing use /home/pi/config.txt 
 
 CONFIG="/boot/config.txt"
-CONFIG="/home/pi/config.txt"  
 
 if grep -Fq "start_x" $CONFIG
 then
