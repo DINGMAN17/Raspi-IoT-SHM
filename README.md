@@ -1,5 +1,5 @@
-# Raspberry Pi IoT application for structural health monitoring
-IoT application that focuses on load/displacement monitoring and crack detection using Raspberry Pi, fibre optic sensor, camera module. 
+# Raspberry Pi AIoT application for structural health monitoring
+AIoT application that focuses on load/displacement monitoring and crack detection using Raspberry Pi, fibre optic sensor, camera module. 
 
 ## Table of contents
 * [General info](#general-info)
@@ -10,7 +10,7 @@ IoT application that focuses on load/displacement monitoring and crack detection
 ## General info
 This application aims to provide a highly automated, real-time, accurate solution to structural health monitoring.
 There are two main functions: 
-- load monitoring using fibre optic sensor; 
+- load/displacement monitoring using fibre optic sensor; 
 - crack detectioin using pretrained deep learning CNN model and camera module. 
 
 Parameters such as sensor interval can be configured via UI. 
