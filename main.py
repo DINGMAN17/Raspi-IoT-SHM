@@ -18,6 +18,7 @@ class Run():
         self.root = tk.Tk()
         self.setting = Setting(self.root)
         self.reset()        
+        self.execute_web = False
         
     def reset(self):
         self.root.mainloop()
@@ -32,18 +33,20 @@ class Run():
         if self.upload_status == True:
             self.scan_image = self.setting.filename
         self.scan_interval = self.setting.get_scan_interval()
-        self.sender = self.setting.get_sender_email()
-        self.password = self.setting.get_password()
         self.recipients = self.setting.get_recipients()
+        
+    def run_webpage(self):
+        if self.execute_web == True:
+            call('FLASK_APP=webapp.py flask run --host=0.0.0.0', shell=True)
     
     def mode_all(self):
         if self.camera == 'True':
             if self.sensor_interval > 0 and self.scan_interval > 0:
                 try:
                     print('Program starts...')
-                    monitoring = Monitoring(self.critical_load, self.sensor_interval, \
-                                            self.scan_interval, self.recipients, self.sender, self.passwrod)
+                    monitoring = Monitoring(self.critical_load, self.sensor_interval, self.scan_interval, self.recipients)
                     monitoring.add_sensor('sensor1', 'Fibre-optic', 0) #set it as user input
+                    self.execute_web = True
                     monitoring.schedule_scan()
                 except KeyboardInterrupt:
                     print('Monitoring stops...')
@@ -59,6 +62,7 @@ class Run():
                 print('Program starts...')
                 sensor = Sensor(self.sensor_interval)
                 sensor.add_sensor('sensor1', 'Fibre-optic', 0) #set it as user input
+                self.execute_web = True
                 sensor.log_data()
             except KeyboardInterrupt:
                 print('Monitoring stops...')
@@ -73,7 +77,7 @@ class Run():
             condition = scan.scan_file(self.scan_image)
             print(condition)
         elif self.camera == 'True' and self.scan_interval > 0:
-            scan.schedule_scan(self.scan_interval)
+            scan.schedule_scan(self.scan_interval, self.recipients)
             self.execute_web = True
         elif self.camera == 'False' and self.upload_status == False:
             print('Please install camera or upload an image')

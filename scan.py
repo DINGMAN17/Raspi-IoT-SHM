@@ -16,7 +16,6 @@ class Scan():
         
     def scan_file(self, scan_image):
         detector = CrackDectectorLite(scan_image)
-        detector.crop_img()
         output_image, condition = detector.predict_tlite_real(scan_image)
         detector.close()
         return condition
