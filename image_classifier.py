@@ -20,6 +20,17 @@ class CrackDectectorLite:
         # Get input and output tensors.
         self.input_index = self.interpreter.get_input_details()[0]["index"]
         self.output_index = self.interpreter.get_output_details()[0]["index"]
+        
+    def crop_img(self, left=1440, top=630, width=1810, height=1800):
+        # Opens a image in RGB mode 
+        im = Image.open(self.filename)           
+        # Setting the points for cropped image 
+        left = left
+        top = top
+        right = left + width
+        bottom = top + height
+  
+        im.crop((left, top, right, bottom)).save(self.filename)
 
     #predict a single image using tf.lite interpreter
     def predict(self, img, print_class=False):

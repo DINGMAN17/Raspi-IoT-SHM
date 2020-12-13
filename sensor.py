@@ -1,9 +1,9 @@
 import smbus
+import datetime
 import time
 import database
 
 class Sensor():
-    
     def __init__(self, sensor_interval):
         self.address = 0x48
         self.bus = smbus.SMBus(1)
@@ -24,27 +24,15 @@ class Sensor():
     def log_data(self):       
         try:    
             while True:
-                #timestamp
                 read_time = time.strftime("%Y-%m-%d %H:%M:%S")
                 for sensor in self.data.get_sensors():
-                    #read ADC value
                     value = self.analogRead(sensor.channel)       
                     voltage = value / 255.0 * 5
-                    #convert ADC value to load, displacement value
                     self._load = 33.367 * voltage - 34.067
-                    self._displacement = -0.03483 * self._load - 0.05111
-                    #print data 
-                    print('Read sensor: {0} load: {1:0.2f}N displacement \
-                          : {2:0.2f}mm'.format(sensor.name, self._load, \
-                              self._displacement))
-                    #store data in database
-                    self.data.add_reading(time=read_time, name='{0} load'. \
-                                          format(sensor.name), value='{0:0.2f}' \
-                                              .format(self._load))
-                    self.data.add_reading(time=read_time, name='{0} displacement' \
-                                          .format(sensor.name), value='{0:0.2f}' \
-                                              .format(self._displacement))
-                #wait
+                    self._displacement = -0.03483 * self._load - 0.05111  
+                    print('Read sensor: {0} load: {1:0.2f}N'.format(sensor.name, self._load))
+                    self.data.add_reading(time=read_time, name='{0} load'.format(sensor.name), value='{0:0.2f}'.format(self._load))
+                    self.data.add_reading(time=read_time, name='{0} displacement'.format(sensor.name), value='{0:0.2f}'.format(self._displacement))
                 time.sleep(self.sensor_interval)
         finally:
             self.data.close()
