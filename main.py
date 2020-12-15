@@ -29,6 +29,7 @@ class Run():
         self.sensor_interval = self.setting.get_sensor_interval()
         self.critical_load = self.setting.get_critical_load()
         self.camera = self.setting.get_camera()
+        self.crop = self.setting.get_crop()
         self.upload_status = self.setting.upload
         if self.upload_status == True:
             self.scan_image = self.setting.filename
@@ -40,11 +41,17 @@ class Run():
             call('FLASK_APP=webapp.py flask run --host=0.0.0.0', shell=True)
     
     def mode_all(self):
+        crop = False
+        position = None
+        if self.crop == 'Yes':
+            crop = True
+            position = self.setting.get_crop_position()
         if self.camera == 'True':
             if self.sensor_interval > 0 and self.scan_interval > 0:
                 try:
                     print('Program starts...')
-                    monitoring = Monitoring(self.critical_load, self.sensor_interval, self.scan_interval, self.recipients)
+                    monitoring = Monitoring(self.critical_load, self.sensor_interval,
+                                            self.scan_interval, self.recipients, crop, position)
                     monitoring.add_sensor('sensor1', 'Fibre-optic', 0) #set it as user input
                     self.execute_web = True
                     monitoring.schedule_scan()
@@ -72,17 +79,21 @@ class Run():
         
     
     def mode_scan(self):       
-        scan = Scan()  
+        scan = Scan() 
+        crop = False
+        position = None
+        if self.crop == 'Yes':
+            crop = True
+            position = self.setting.get_crop_position()
         if self.upload_status == True:
             condition = scan.scan_file(self.scan_image)
             print(condition)
         elif self.camera == 'True' and self.scan_interval > 0:
-            scan.schedule_scan(self.scan_interval, self.recipients)
-            self.execute_web = True
+            scan.schedule_scan(self.scan_interval, self.recipients, crop, position)
         elif self.camera == 'False' and self.upload_status == False:
             print('Please install camera or upload an image')
         else:
-            scan.scan_camera()
+            scan.scan_camera(crop=crop, position=position)
 
 def main():
     r = Run()

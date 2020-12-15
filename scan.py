@@ -20,14 +20,15 @@ class Scan():
         detector.close()
         return condition
     
-    def scan_camera(self, recipients=None, alert=False):
-    
+    def scan_camera(self, recipients=None, alert=False, crop=False, position=None):
+
         file = time.strftime("%Y-%m-%d %H:%M:%S")
         filename = "real_images/" + file + ".jpg"
         subprocess.run(["raspistill", "-o", filename])
-        
+
         detector = CrackDectectorLite(filename)
-        detector.crop_img()
+        if crop:
+            detector.crop_img(position)
         (condition, cracks) = detector.predict_tlite_real(filename)[1]
         detector.close()
         self.data.add_scan(time=file, name='scan', condition=condition, cracks=cracks)
@@ -35,8 +36,11 @@ class Scan():
             self.send_alert(file, recipients)
         return condition, file
     
-    def schedule_scan(self, scan_interval, recipients):
-        schedule.every(scan_interval).minutes.do(self.scan_camera, recipients=recipients, alert=True)                     
+    def schedule_scan(self, scan_interval, recipients, crop, position):
+        schedule.every(scan_interval).minutes.do(self.scan_camera, 
+                                                 recipients=recipients, 
+                                                 alert=True, crop=crop,
+                                                 position=position)                    
 
         while True:
             schedule.run_pending()

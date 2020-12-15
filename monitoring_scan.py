@@ -13,7 +13,7 @@ from email.message import EmailMessage
 from image_classifier import CrackDectectorLite
 
 class Monitoring():
-    def __init__(self, critical_load, sensor_interval, scan_interval, recipients):
+    def __init__(self, critical_load, sensor_interval, scan_interval, recipients, crop, position):
         self.address = 0x48
         self.bus = smbus.SMBus(1)
         self.cmd = 0x40
@@ -21,6 +21,8 @@ class Monitoring():
         self.sensor_interval = sensor_interval
         self.scan_interval = scan_interval
         self.recipients = recipients
+        self.crop = crop
+        self.position = position
         self.data = database.SensorData() #create a database instance
         self._lock = threading.Lock() #create a lock to syncronize access to hardware from different threads
         #setup a thread to read sensor value every 3 seconds and store its last known value
@@ -74,7 +76,8 @@ class Monitoring():
         subprocess.run(["raspistill", "-o", filename])
         
         detector = CrackDectectorLite(filename)
-        detector.crop_img()
+        if self.crop:
+            detector.crop_img(self.position)
         (condition, cracks) = detector.predict_tlite_real(filename)[1]
         detector.close()
         self.data.add_scan(time=file, name=name, condition=condition, cracks=cracks)

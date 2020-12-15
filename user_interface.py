@@ -21,6 +21,12 @@ class Setting:
     def get_camera(self):
         return self.camera.get()
     
+    def get_crop(self):
+        return self.crop.get()
+    
+    def get_crop_position(self):
+        return self.crop_x.get(), self.crop_y.get(), self.crop_width.get(), self.crop_height.get()
+    
     def get_scan_interval(self):
         return self.interval_day.get() * 1440 + \
                              self.interval_hour.get() * 60 + \
@@ -78,8 +84,8 @@ class Setting:
         tk.Label(sensor_frame, text='Monitoring interval:').grid(row=2, column=1)
         self.sensor_interval = tk.IntVar()
         tk.Entry(sensor_frame,width=7, textvariable=self.sensor_interval).grid(row=2, column=2)
-        tk.Label(sensor_frame, text='seconds').grid(row=2, column=3)        
-        
+        tk.Label(sensor_frame, text='seconds').grid(row=2, column=3)
+    
     def create_scan_frame(self):
         scan_frame = tk.Frame(self.bottom_frame, relief=tk.SUNKEN, borderwidth=1)
         scan_frame.pack()
@@ -92,16 +98,32 @@ class Setting:
         upload_button = tk.Button(scan_frame, text='upload scan image', command=self.uploadAction)
         upload_button.grid(row=1, column=3, columnspan=3)
         
-        tk.Label(scan_frame, text='scan interval:').grid(row=2, column=0)
+        tk.Label(scan_frame, text='crop image: ').grid(row=2, column=0)
+        self.crop = tk.StringVar()
+        tk.OptionMenu(scan_frame, self.crop, "Yes", "No").grid(row=2, column=1)
+        self.crop_x = tk.IntVar()
+        self.crop_y = tk.IntVar()
+        self.crop_width = tk.IntVar()
+        self.crop_height = tk.IntVar()
+        tk.Label(scan_frame, text='Enter position:   X:').grid(row=3, column=0)        
+        tk.Entry(scan_frame, textvariable=self.crop_x, width=4).grid(row=3, column=1)
+        tk.Label(scan_frame, text='Y:').grid(row=3, column=2)
+        tk.Entry(scan_frame, textvariable=self.crop_y, width=4).grid(row=3, column=3)
+        tk.Label(scan_frame, text='width:').grid(row=3, column=4)
+        tk.Entry(scan_frame, textvariable=self.crop_width, width=4).grid(row=3, column=5)
+        tk.Label(scan_frame, text='height:').grid(row=3, column=6)
+        tk.Entry(scan_frame, textvariable=self.crop_height, width=4).grid(row=3, column=7)
+                
+        tk.Label(scan_frame, text='scan interval:').grid(row=4, column=0)
         self.interval_day = tk.IntVar()
         self.interval_hour = tk.IntVar()
         self.interval_min = tk.IntVar()
-        tk.Entry(scan_frame, textvariable=self.interval_day, width=5).grid(row=2, column=1)
-        tk.Label(scan_frame, text='days').grid(row=2, column=2)
-        tk.Entry(scan_frame, textvariable=self.interval_hour, width=5).grid(row=2, column=3)
-        tk.Label(scan_frame, text='hours').grid(row=2, column=4)
-        tk.Entry(scan_frame, textvariable=self.interval_min, width=5).grid(row=2, column=5)
-        tk.Label(scan_frame, text='minutes').grid(row=2, column=6)
+        tk.Entry(scan_frame, textvariable=self.interval_day, width=5).grid(row=4, column=1)
+        tk.Label(scan_frame, text='days').grid(row=4, column=2)
+        tk.Entry(scan_frame, textvariable=self.interval_hour, width=5).grid(row=4, column=3)
+        tk.Label(scan_frame, text='hours').grid(row=4, column=4)
+        tk.Entry(scan_frame, textvariable=self.interval_min, width=5).grid(row=4, column=5)
+        tk.Label(scan_frame, text='minutes').grid(row=4, column=6)
         
     def create_email_frame(self):
         email_frame = tk.Frame(self.bottom_frame, relief=tk.SUNKEN, borderwidth=1)
@@ -144,6 +166,9 @@ class Setting:
         print( "camera: ", self.get_camera())
         if self.upload == True:
             print("filename: ", self.filename)
+        print('crop image: ', self.get_crop())
+        if self.get_crop() == 'Yes':
+            print('crop postion', self.get_crop_position())
         print( 'interval: ', self.get_scan_interval())
         print( "alert email sent from: ", self.get_sender_email())
         print("email password: ", self.get_password())
