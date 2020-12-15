@@ -37,6 +37,21 @@ For this mode to work, you need to have a fiber optic sensor, analog digital con
 
 This mode can be further divided into two sub-modes:
 - real-time crack detection using camera module: a Raspberry Pi camera module is required. (both v2 and HD camera module are suitable)
+
+If camera is installed, to adjust camera, run:
+```bash
+sudo python camera.py
+```
+If the photo needs to be cropped, follow the steps below:
+
+(a) Take a photo and save as test.jpg
+```bash
+raspistill -o test.jpg
+```
+(b) Open the test.jpg file using Mirage. Select edit -> crop, select the correct region, take note of the value of X, Y, width, heigh.
+
+(c) Enter the values in the UI
+
 - crack detection via file-upload: no hardware is required, image file can be uploaded via UI 
 
 3. Load monitoring with scheduled crack scan and emergency scan
