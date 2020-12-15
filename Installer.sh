@@ -2,7 +2,7 @@
 
 
 # Install packages
-PACKAGES="python-picamera python-pip python-schedule python-smbus python-numpy python-matplotlib sqlite3"
+PACKAGES="python-picamera python-pip python-schedule python-smbus python-numpy python-matplotlib sqlite3 mirage"
 
 apt-get update
 apt-get upgrade -y
