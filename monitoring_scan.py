@@ -3,6 +3,7 @@ import datetime
 import time
 import os
 import schedule
+import subprocess
 import threading
 import picamera
 import smtplib
@@ -12,15 +13,13 @@ from email.message import EmailMessage
 from image_classifier import CrackDectectorLite
 
 class Monitoring():
-    def __init__(self, critical_load, sensor_interval, scan_interval, recipients, sender, password):
+    def __init__(self, critical_load, sensor_interval, scan_interval, recipients):
         self.address = 0x48
         self.bus = smbus.SMBus(1)
         self.cmd = 0x40
         self.critical_load = critical_load
         self.sensor_interval = sensor_interval
         self.scan_interval = scan_interval
-        self.sender = sender
-        self.passwood = password
         self.recipients = recipients
         self.data = database.SensorData() #create a database instance
         self._lock = threading.Lock() #create a lock to syncronize access to hardware from different threads
@@ -54,7 +53,7 @@ class Monitoring():
                     voltage = value / 255.0 * 5
                     self._load = 33.367 * voltage - 34.067
                     self._displacement = -0.03483 * self._load - 0.05111  
-                    print('Read sensor: {0} load: {1:0.2f}N displacement : {1:0.2f}mm'.format(sensor.name, self._load, self._displacement))
+                    print('Read sensor: {0} load: {1:0.2f}N'.format(sensor.name, self._load))
                     self.data.add_reading(time=read_time, name='{0} load'.format(sensor.name), value='{0:0.2f}'.format(self._load))
                     self.data.add_reading(time=read_time, name='{0} displacement'.format(sensor.name), value='{0:0.2f}'.format(self._displacement))
                 time.sleep(self.sensor_interval)
@@ -69,27 +68,27 @@ class Monitoring():
         '''get the most recent displacement value'''
         return self._displacement
             
-    def scan(self):
-        with picamera.PiCamera() as camera:
-            camera.resolution = (1296, 972)
-            file = time.strftime("%Y-%m-%d %H:%M:%S")
-            filename = "real_images/" + file + ".jpg"
-            camera.capture(filename)
-
-        detector = CrackDectectorLite(filename)    
-        output_image, condition = detector.predict_tlite_real(filename)
-        detector.close()
+    def scan(self, name, alert=True):    
+        file = time.strftime("%Y-%m-%d %H:%M:%S")
+        filename = "real_images/" + file + ".jpg"
+        subprocess.run(["raspistill", "-o", filename])
         
+        detector = CrackDectectorLite(filename)
+        detector.crop_img()
+        (condition, cracks) = detector.predict_tlite_real(filename)[1]
+        detector.close()
+        self.data.add_scan(time=file, name=name, condition=condition, cracks=cracks)
+        if condition == True and alert == True:
+            print('sending alert email')
+            self.send_alert(file)
         return condition, file
     
     def send_alert(self, filename):  #user input
         '''configure email alert when crack is detected'''
         contacts = self.recipients
-        #email_sender = os.environ.get('EMAIL_USER') 
-        #email_password = os.environ.get('EMAIL_PASSWORD')
-        email_sender = self.sender
-        email_password = self.password
-        
+        email_sender = os.environ.get('EMAIL_USER') 
+        email_password = os.environ.get('EMAIL_PASSWORD')
+
         msg = EmailMessage()
         msg['Subject'] = 'Crack Alert!!!'
         msg['From'] = email_sender
@@ -110,34 +109,21 @@ class Monitoring():
             smtp.send_message(msg)
 
     def critical_scan(self):
-        '''critical scan is called if the load value reaches the maximum capacity of the structural'''
+        '''critical scan is called if the load value reaches 
+        the maximum capacity of the structural'''
         while True:
             if self.get_load() > self.critical_load:     #assume a random critical condition
-                print('perform critical scan')
-                (condition, cracks), file = self.scan()
-                scan_time = file                       
-                self.data.add_scan(time=scan_time, name='emergency_scan', condition=condition, cracks=cracks)
-                if condition == True:
-                    print('sending alert email')
-                    self.send_alert(file)
+                print('perform emergency scan')
+                self.scan('emergency_scan')
             time.sleep(5)
                 
     def schedule_scan(self):
         '''configure the scan to be a schedule task, automatically perform every user defined intervals'''
-        schedule.every(self.scan_interval).minutes.do(self.scan)
-        return_condition = self.scan()[0]
-        return_filename = self.scan()[1]
+        schedule.every(self.scan_interval).minutes.do(self.scan, name='schedule_scan')
         
         while True:
             schedule.run_pending()
-            condition, cracks = return_condition
-            #print('schedule check condition: ', condition)
-            file = return_filename
-            scan_time = file                       
-            self.data.add_scan(time=scan_time, name='schedule_scan', condition=condition, cracks=cracks)
-            if condition == True:
-                self.send_alert(file)                
-            time.sleep(5)
+            time.sleep(30)
 
 def main():
     print ('Program is starting ... ')
