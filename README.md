@@ -40,7 +40,7 @@ This mode can be further divided into two sub-modes:
 
 If camera is installed, to adjust camera, run:
 ```bash
-sudo python camera.py
+python3 camera.py
 ```
 If the photo needs to be cropped, follow the steps below:
 
