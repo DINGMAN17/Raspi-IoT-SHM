@@ -21,14 +21,14 @@ class CrackDectectorLite:
         self.input_index = self.interpreter.get_input_details()[0]["index"]
         self.output_index = self.interpreter.get_output_details()[0]["index"]
         
-    def crop_img(self, left=1020, top=1127, width=1550, height=1600):
+    def crop_img(self, position):
         # Opens a image in RGB mode 
         im = Image.open(self.filename)           
         # Setting the points for cropped image 
-        left = left
-        top = top
-        right = left + width
-        bottom = top + height
+        left = position[0]
+        top = position[1]
+        right = left + position[2]
+        bottom = top + position[3]
   
         im.crop((left, top, right, bottom)).save(self.filename)
 
