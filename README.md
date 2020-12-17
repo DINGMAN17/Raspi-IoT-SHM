@@ -48,11 +48,15 @@ If the photo needs to be cropped, follow the steps below:
 ```bash
 raspistill -o test.jpg
 ```
-(b) Open the test.jpg file using Mirage. Select edit -> crop, select the correct region, take note of the value of X, Y, width, heigh.
+(b) Open the test.jpg file using Mirage. Select edit -> crop, select the correct region, take note of the value of X, Y, width, height:
 
-(c) Enter the values in the UI
+![Image of sensor connection](https://github.com/DINGMAN17/Raspi-IoT-SHM/blob/main/crop_mirage.PNG)
 
-- crack detection via file-upload: no hardware is required, image file can be uploaded via UI 
+(c) Enter the above values in the UI:
+
+![Image of sensor connection](https://github.com/DINGMAN17/Raspi-IoT-SHM/blob/main/crop_image.PNG)
+
+- crack detection via file-upload: no hardware is required, image file can be uploaded via UI
 
 3. Load monitoring with scheduled crack scan and emergency scan
 
