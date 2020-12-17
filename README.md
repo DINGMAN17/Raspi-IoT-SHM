@@ -50,11 +50,11 @@ raspistill -o test.jpg
 ```
 (b) Open the test.jpg file using Mirage. Select edit -> crop, select the correct region, take note of the value of X, Y, width, height:
 
-![Image of sensor connection](https://github.com/DINGMAN17/Raspi-IoT-SHM/blob/main/crop_mirage.PNG)
+![crop image using mirage](https://github.com/DINGMAN17/Raspi-IoT-SHM/blob/main/crop_mirage.PNG)
 
 (c) Enter the above values in the UI:
 
-![Image of sensor connection](https://github.com/DINGMAN17/Raspi-IoT-SHM/blob/main/crop_image.PNG)
+![Entering values in UI](https://github.com/DINGMAN17/Raspi-IoT-SHM/blob/main/crop_image.PNG)
 
 - crack detection via file-upload: no hardware is required, image file can be uploaded via UI
 
@@ -70,6 +70,13 @@ After hardware setup, run the program:
 sudo python3 main.py
 ```
 When results start printing out in the terminal, run the web application (better to open a new connection so that the main program's output result can be clearly seen). 
+
+The images taken by camera module are saved in 
+[real_images](https://github.com/DINGMAN17/Raspi-IoT-SHM/tree/main/real_images) folder.
+(feel free to use any images in this folder to test the crack detection model)
+
+The output images from scan process are saved automatically in [scan_image](https://github.com/DINGMAN17/Raspi-IoT-SHM/tree/main/static/scan_image) folder under static directory. The image file is named with 'out_' and the timestamp. 
+
 Run the following command:
 ```bash
 FLASK_APP=webapp.py flask run --host=0.0.0.0
